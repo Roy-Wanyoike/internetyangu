@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Crystal Blue palette (matches LinkPulse report) */
+  --bg: #F7FAFD;
+  --bg-dark: #0A1628;
+  --primary: #0A2540;
+  --accent: #2D7AB3;
+  --accent-lumen: #4DA8DA;
+  --surface: #E4ECF5;
+  --stripe: #EEF3FA;
+  --border: #C0D0E2;
+  --muted: #5A7A96;
+  --header-fill: #1A4A7A;
+  --on-dark: #E8F0F8;
+  --on-dark-muted: #7A9BB8;
+
+  /* Typography tokens (family + scale only; no pre-baked classes) */
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-num: 'Inter', sans-serif;
+  --fs-display: 64px;
+  --fs-h1: 44px;
+  --fs-h2: 28px;
+  --fs-h3: 20px;
+  --fs-body: 16px;
+  --fs-small: 13px;
+  --fs-micro: 11px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  padding: 56px 64px;
+}
+
+.slide-dark {
+  background: var(--bg-dark);
+  color: var(--on-dark);
+}
+
+/* Card surface */
+.card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.card-tint {
+  background: var(--stripe);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.card-navy {
+  background: var(--header-fill);
+  color: #FFFFFF;
+  border-radius: 14px;
+}
+
+/* Accent utilities */
+.accent-text { color: var(--accent); }
+.lumen-text { color: var(--accent-lumen); }
+.muted-text { color: var(--muted); }
+.on-dark-muted { color: var(--on-dark-muted); }
+
+.kicker {
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rule {
+  height: 3px;
+  width: 64px;
+  background: var(--accent-lumen);
+  border-radius: 2px;
+}
+
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: var(--fs-small);
+  color: var(--primary);
+}
+
+.hidden { display: none; }

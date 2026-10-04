@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LinkPulse · Investor Concept Deck — Cover</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+  .chip-dark {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(122,155,184,.45);
+    background: rgba(232,240,248,.06);
+    border-radius: 999px; padding: 7px 16px;
+    font-size: 13px; font-weight: 600; color: var(--on-dark);
+    white-space: nowrap;
+  }
+  .chip-dark .material-icons { font-size: 16px; color: var(--accent-lumen); }
+  .meta-item { font-size: 11px; letter-spacing: 2.5px; font-weight: 600; color: var(--on-dark-muted); white-space: nowrap; }
+  .meta-dot { width: 4px; height: 4px; border-radius: 999px; background: var(--on-dark-muted); opacity: .65; flex: none; }
+</style>
+</head>
+<body>
+<div class="slide slide-dark">
+
+  <!-- Full-bleed background: Nairobi twilight skyline at low opacity under navy gradient -->
+  <img data-decor aria-hidden="true" src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/6597fd5312b3.png" alt=""
+       class="absolute inset-0 w-full h-full object-cover" style="opacity:.18;">
+  <div data-decor aria-hidden="true" class="absolute inset-0"
+       style="background: linear-gradient(115deg, rgba(10,22,40,.97) 0%, rgba(10,22,40,.85) 52%, rgba(10,22,40,.64) 100%);"></div>
+  <div data-decor aria-hidden="true" class="absolute inset-0"
+       style="background: linear-gradient(to top, rgba(10,22,40,.92) 0%, rgba(10,22,40,0) 28%);"></div>
+  <div data-decor aria-hidden="true" class="absolute"
+       style="top:-170px; right:-130px; width:540px; height:540px; border-radius:50%;
+              background: radial-gradient(circle, rgba(77,168,218,.17) 0%, rgba(77,168,218,0) 66%);"></div>
+
+  <!-- Hero content -->
+  <div class="relative h-full flex flex-col justify-center" style="max-width:800px; padding-bottom:40px;">
+    <div class="kicker" style="color:var(--accent-lumen); font-size:13px; font-weight:700;">INVESTOR CONCEPT DECK - OCTOBER 2026</div>
+    <div class="rule" style="margin:22px 0 26px;"></div>
+    <h1 style="font-size:96px; font-weight:900; letter-spacing:-3.5px; line-height:1; color:var(--on-dark);">LinkPulse</h1>
+    <p style="margin-top:20px; font-size:25px; font-weight:600; letter-spacing:-.2px; color:var(--accent-lumen);">Every connection. Every shilling. One dashboard.</p>
+    <p class="on-dark-muted" style="margin-top:18px; max-width:640px; font-size:16.5px; line-height:1.65;">A universal connectivity and spend monitor for East Africa - the open-source Dishylink pattern, generalized from Starlink to every network: mobile data, home fiber, public WiFi and satellite.</p>
+    <div class="flex items-center flex-wrap" style="gap:12px; margin-top:36px;">
+      <span style="font-size:11px; letter-spacing:3px; font-weight:700; color:var(--on-dark-muted); margin-right:2px;">SCOPE</span>
+      <span class="chip-dark"><i class="material-icons">smartphone</i>Mobile data</span>
+      <span class="chip-dark"><i class="material-icons">router</i>Home fiber</span>
+      <span class="chip-dark"><i class="material-icons">wifi</i>Public WiFi</span>
+      <span class="chip-dark"><i class="material-icons">satellite_alt</i>Satellite</span>
+    </div>
+  </div>
+
+  <!-- Bottom-left meta row -->
+  <div class="absolute flex items-center" style="left:64px; bottom:46px; gap:14px;">
+    <span class="meta-item">CONCEPT STAGE - PRE-SEED</span>
+    <span class="meta-dot"></span>
+    <span class="meta-item">NAIROBI</span>
+    <span class="meta-dot"></span>
+    <span class="meta-item">DISHYLINK-DERIVED, OSS CORE</span>
+  </div>
+
+</div>
+</body>
+</html>

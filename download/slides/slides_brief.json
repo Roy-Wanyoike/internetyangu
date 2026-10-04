@@ -1,0 +1,87 @@
+{
+  "design": {
+    "title": "LinkPulse - Investor Concept Deck",
+    "style_name": "Fintech Clean - Crystal Blue (Stripe/Linear-like)",
+    "palette": { "background": "#F7FAFD", "primary": "#0A2540", "accent": "#2D7AB3" },
+    "typography": { "heading": "Inter 800/900", "body": "Inter 400/500", "numeric": "Inter 800 tabular-nums" },
+    "reference": "Stripe annual letter / Linear report - light blue-white surfaces, navy text, electric-blue accents; cover slide dark navy like the report cover"
+  },
+  "global_css_path": "/home/z/my-project/download/slides/global.css",
+  "slides_dir": "/home/z/my-project/download/slides",
+  "language": "en",
+  "speaker_notes": "none",
+  "slides": [
+    {
+      "title": "Cover",
+      "layout": "cover",
+      "output_path": "/home/z/my-project/download/slides/slide_01.html",
+      "task_brief": "Dark cover (use .slide-dark, background var(--bg-dark)). Full-bleed background image https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/6597fd5312b3.png (Nairobi twilight skyline) at low opacity (0.18) behind a navy overlay gradient so text passes contrast. Kicker: 'INVESTOR CONCEPT DECK - OCTOBER 2026'. Hero title: 'LinkPulse' (Inter 900, ~96px, color var(--on-dark)). Tagline below in accent-lumen: 'Every connection. Every shilling. One dashboard.' One-line descriptor (on-dark-muted, max-width 640px): 'A universal connectivity and spend monitor for East Africa - the open-source Dishylink pattern, generalized from Starlink to every network: mobile data, home fiber, public WiFi and satellite.' Bottom-left meta row (micro, letter-spaced): 'CONCEPT STAGE - PRE-SEED' + 'NAIROBI' + 'DISHYLINK-DERIVED, OSS CORE'."
+    },
+    {
+      "title": "The Problem",
+      "layout": "split text+image",
+      "output_path": "/home/z/my-project/download/slides/slide_02.html",
+      "task_brief": "Left 58%: kicker 'THE PROBLEM'; headline 'Connectivity is a portfolio. Nobody is keeping score.' Body: 'A typical East African household juggles Safaricom bundles, home fiber from Zuku, Faiba, Airtel or Poa, public WiFi and mobile money receipts - each with its own price per GB, expiry clock and failure mode. The information lives in transient SMS, USSD menus and rival carrier apps.' Three pain cards: 'Invisible spend - bundle purchases vanish into SMS; monthly total is guesswork'; 'Unprovable quality - outages leave no evidence, so refunds and SLA credits go unclaimed'; 'Blind switching - Airtel enters fixed from KES 1,999, Zuku discounts prepaid, Starlink shakes pricing - and users decide on rumor'. Right 42%: photo https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b918201b38ce.jpg (woman using smartphone) in rounded frame with caption chip 'Billing truth arrives as SMS - then disappears'."
+    },
+    {
+      "title": "Origin - What Dishylink Proves",
+      "layout": "split image+text",
+      "output_path": "/home/z/my-project/download/slides/slide_03.html",
+      "task_brief": "Left 42%: photo https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b99876bcbaf7.jpeg (Starlink dish on rooftop under starry sky) rounded frame; caption chip 'Dishylink: open-source Starlink monitor'. Right 58%: kicker 'ORIGIN'; headline 'The pattern is proven. The market is not satellite-shaped.' Body: 'Dishylink reads the connection directly on-device, keeps history honest, works during outages and links an account only if the user opts in. It earns trust by keeping data local - the same posture consumers need across every East African operator.' Four proof rows with accent icons: 'Local-first measurement - works when the vendor cloud does not'; 'Privacy as a feature - no account, no telemetry, by design'; 'Billing context multiplies value - optional account link adds plan and spend'; 'OSS distribution - MIT-licensed core turns users into installers'. Footer strip: 'Generalize: Starlink dish -> every ISP, every bundle, every shilling.'"
+    },
+    {
+      "title": "Solution - LinkPulse",
+      "layout": "bento grid",
+      "output_path": "/home/z/my-project/download/slides/slide_04.html",
+      "task_brief": "Kicker 'SOLUTION'; headline 'One PWA. Three pillars. Zero forced cloud.' Sub-line: 'Installable progressive web app - runs in the browser, installs on Android home screens, history stored locally in IndexedDB.' Bento of 3 pillar cards: 1) MEASURE - 'Latency and throughput probes, online/offline event log, on-demand speed tests, per-device usage - the honest stat tiles Dishylink popularized, across every network'; 2) TRACK - 'Billing SMS parsing, M-Pesa statement import, cost per GB per network, bundle expiry alerts - one monthly connectivity bill no carrier app will ever show'; 3) ACT - 'Timestamped outage evidence for refunds, switching advisor ranking real-world quality and cost, in-app bundle purchase via mobile money rails'. Wide slim banner card at bottom (card-navy): 'Privacy-first: raw SMS stays on-device. Cloud sync and QoS-map contribution are strictly opt-in.'"
+    },
+    {
+      "title": "How It Works - Data Stack",
+      "layout": "stacked tier bands",
+      "output_path": "/home/z/my-project/download/slides/slide_05.html",
+      "task_brief": "Kicker 'HOW IT WORKS'; headline 'Honest engineering: three tiers, each valuable alone.' Three stacked horizontal band cards (no SVG connectors - stacked bands with tier number blocks): TIER 1 'Browser core (PWA) - MVP' chips: 'latency + throughput probes', 'online/offline log', 'Network Information hints', 'manual spend entry' - note 'no sensitive permissions'; TIER 2 'Installed intelligence - Android companion shell' chips: 'WiFi SSID identity', 'billing SMS parsing', 'M-Pesa statement import', 'expiry alerts' - note 'user-consented location + SMS permissions'; TIER 3 'Network depth - months 7-18' chips: 'encrypted opt-in sync', 'anonymized QoS map', 'community ISP adapters', 'OpenWrt router agent' - note 'estate-level rankings, market-grade corpus'. Right side vertical rail (or bottom note): 'Adapter registry is community-owned and versioned - parsing fragility is contained, permission drift is hedged by design.'"
+    },
+    {
+      "title": "Market - East Africa",
+      "layout": "stats",
+      "output_path": "/home/z/my-project/download/slides/slide_06.html",
+      "task_brief": "Kicker 'MARKET'; headline 'A hyper-competitive, mobile-money-native connectivity market.' Four large stat tiles (num class, accent): '2.84M' 'Kenya fixed internet subs, Jun 2026 (CA data)'; '+32.4%' 'fixed-market growth YoY'; '37.9M' 'M-Pesa monthly active users'; '~19.5K' 'Starlink Kenya subs - the universality gap'. Below: slim CSS horizontal funnel bars (div widths 100% / 36% / 2.5%, accent shades): 'TAM ~110M EA internet connections (indicative)', 'SAM ~40M smartphone users paying for data (indicative)', 'SOM 1.5-2.0M Year-3 MAU target'. Right or background accent: thin photo strip https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/44259e5872bf.jpg (Nairobi aerial dusk) as a decorative rounded banner with 12% overlay. Footnote (micro, muted): 'Uganda 44.3M mobile subs - Rwanda 5.5M internet users - Mawingu raised $20M Series C, Oct 2025. Funnel figures labeled indicative.'"
+    },
+    {
+      "title": "Competition",
+      "layout": "comparison table",
+      "output_path": "/home/z/my-project/download/slides/slide_07.html",
+      "task_brief": "Kicker 'COMPETITION'; headline 'Everyone owns a slice. Nobody crosses ISP, money and evidence.' HTML table (5 cols: Player / Category / Strength / Gap LinkPulse fills): rows: 'MySafaricom, Airtel, Telkom, Faiba apps | Carrier self-care | Authoritative billing and payments for one operator | Single-carrier view; cannot be neutral'; 'Ookla Speedtest | Measurement | Trusted one-shot speed brand | No billing, no owned history, no advocacy'; 'Fing / GlassWire | Network tooling | Deep device-level visibility | Desktop, enthusiast-oriented; zero spend intelligence'; 'Truecaller | SMS utility | 400M-user proof of permission-based value exchange | Not connectivity-focused'; 'Plan comparison sites | Content | Tariff awareness | Static; no personal usage or live quality'. Bottom moat strip (card-tint): 'Moat: cross-ISP billing corpus + community adapter registry + consumer-advocate brand a carrier can never occupy.'"
+    },
+    {
+      "title": "Business Model",
+      "layout": "four revenue cards",
+      "output_path": "/home/z/my-project/download/slides/slide_08.html",
+      "task_brief": "Kicker 'BUSINESS MODEL (INDICATIVE)'; headline 'Four streams layered on one free utility.' Four cards in 2x2 or row: 1) 'Consumer Pro' - 'KES 100-200 / month' - '3-6% of MAU convert for deep history, family mode, evidence reports'; 2) 'Bundle commissions' - '3-7% of transaction' - 'in-app purchases on M-Pesa rails; revenue before marketplace scale'; 3) 'SME monitoring' - 'KES 1,500-5,000 / month' - 'multi-branch SLA evidence; 1-2% of urban SMEs'; 4) 'QoS insights' - 'licensing (opt-in corpus)' - 'operators and regulators value independent estate-level data'. Bottom economic strip with three chips: 'Near-zero CAC - OSS + PWA word-of-mouth', 'Blended ARPU KES 60-120 / mo at maturity', 'Storage and compute live on-device - lean cost base'."
+    },
+    {
+      "title": "Why Now",
+      "layout": "three forces + momentum",
+      "output_path": "/home/z/my-project/download/slides/slide_09.html",
+      "task_brief": "Kicker 'WHY NOW'; headline 'Competition broke the calm. Rails and regulation finished the setup.' Three force cards: 'Price war - Starlink arrival and Airtel fixed entry at KES 1,999 triggered visible moves from every operator; consumers face real choices without real data'; 'Rails ready - 37.9M M-Pesa users; permission-based onboarding and commission flows have working precedents (banking apps, Truecaller)'; 'Policy aligned - the Communications Authority already publishes QoS statistics; independent consumer measurement aligns with regulation'. Momentum chip row: 'Mawingu $20M Series C (Oct 2025)', 'Kenya fixed market +32.4% YoY', 'Zuku prepaid bundles + Airtel fixed entry'."
+    },
+    {
+      "title": "Moat and Comps",
+      "layout": "comparison",
+      "output_path": "/home/z/my-project/download/slides/slide_10.html",
+      "task_brief": "Kicker 'DEFENSIBILITY'; headline 'Data that compounds, community that ships, a brand carriers cannot buy.' Three moat cards: 'Billing corpus - anonymized, operator-normalized spend + quality grows more predictive with every user; incumbents cannot retrofit it without hosting rivals data'; 'Adapter registry - open-source, versioned parsers become the canonical library for East African billing formats'; 'Advocate brand - privacy-first OSS DNA inherited from Dishylink is a position carrier-owned apps can never occupy'. Comp strip (four chips with short labels): 'Truecaller - permission utility to ~400M users', 'Fing - free scanner to platform business', 'Ookla - measurement data franchise, acquired by Ziff Davis', 'Mawingu - $20M for EA connectivity'."
+    },
+    {
+      "title": "Roadmap",
+      "layout": "timeline phases",
+      "output_path": "/home/z/my-project/download/slides/slide_11.html",
+      "task_brief": "Kicker 'ROADMAP - 18 MONTHS'; headline 'Every phase ships proof, not promises.' Five phase cards in a horizontal row (CSS cards with phase number blocks, no SVG timeline): 'M0-3 Foundation - PWA MVP: probes, outage log, manual spend, OSS repo public - metric: 5,000 installs, 40% W4 retention'; 'M4-6 Intelligence - Android shell beta: SSID, billing SMS parsing, M-Pesa import - metric: 25K MAU, 1M events parsed'; 'M7-9 Marketplace - bundle commissions, switching advisor v1 - metric: 50K MAU, first commission revenue'; 'M10-12 Expansion - SME tier, Uganda, QoS map v1 - metric: 150K MAU, 100 paying SMEs'; 'M13-18 Depth - Tanzania, Rwanda, router agent, insights API - metric: 400K MAU, breakeven trajectory'."
+    },
+    {
+      "title": "The Ask",
+      "layout": "closing",
+      "output_path": "/home/z/my-project/download/slides/slide_12.html",
+      "task_brief": "Dark closing slide (.slide-dark, navy bg, optional faint radial glow like report cover). Kicker: 'THE ASK'. Hero: '$400K pre-seed' (num, on-dark, ~80px). Sub: 'indicative - 18 months of runway to 50,000 MAU and two live revenue streams'. Use-of-funds horizontal CSS bars on dark (lumen accents): 'Engineering 60% - PWA, Android, adapters (4-person team)', 'Growth and community 25% - estates, campuses, OSS', 'Operations and compliance 15%'. Right column milestones card: 'Ships: MVP in 90 days - billing intelligence by month 6 - seed-round evidence by month 18'. Closing line (accent-lumen): 'Dishylink proved the pattern. East Africa is the market. LinkPulse is the utility.' Footer meta: 'hello@linkpulse.app (placeholder) - Nairobi - October 2026'."
+    }
+  ]
+}

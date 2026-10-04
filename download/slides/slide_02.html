@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LinkPulse · The Problem</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+  .pain-card { display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px; }
+  .icon-tile { width: 40px; height: 40px; border-radius: 10px; background: var(--stripe); flex: none;
+               display: flex; align-items: center; justify-content: center; }
+  .icon-tile .material-icons { font-size: 21px; color: var(--accent); }
+  .pain-title { font-size: 15.5px; font-weight: 700; color: var(--primary); }
+  .pain-desc { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="flex h-full" style="gap:36px;">
+
+    <!-- LEFT 58% · narrative + pain cards -->
+    <div class="flex flex-col" style="width:58%;">
+      <div class="kicker" style="color:var(--header-fill); font-size:13px; font-weight:700;">THE PROBLEM</div>
+      <h1 style="margin-top:14px; font-size:38px; font-weight:900; letter-spacing:-1px; line-height:1.16; color:var(--primary);">
+        Connectivity is a portfolio.<br><span style="color:var(--accent);">Nobody is keeping score.</span>
+      </h1>
+      <div class="rule" style="margin:18px 0 16px;"></div>
+      <p style="font-size:15.5px; line-height:1.6; color:var(--primary); max-width:648px;">
+        A typical East African household juggles Safaricom bundles, home fiber from Zuku, Faiba, Airtel or Poa, public WiFi and mobile money receipts - each with its own price per GB, expiry clock and failure mode. The information lives in transient SMS, USSD menus and rival carrier apps.
+      </p>
+
+      <div class="flex flex-col" style="gap:13px; margin-top:22px;">
+        <div class="card pain-card">
+          <div class="icon-tile"><i class="material-icons">visibility_off</i></div>
+          <div>
+            <div class="pain-title">Invisible spend</div>
+            <div class="pain-desc">bundle purchases vanish into SMS; monthly total is guesswork</div>
+          </div>
+        </div>
+        <div class="card pain-card">
+          <div class="icon-tile"><i class="material-icons">history_toggle_off</i></div>
+          <div>
+            <div class="pain-title">Unprovable quality</div>
+            <div class="pain-desc">outages leave no evidence, so refunds and SLA credits go unclaimed</div>
+          </div>
+        </div>
+        <div class="card pain-card">
+          <div class="icon-tile"><i class="material-icons">swap_horiz</i></div>
+          <div>
+            <div class="pain-title">Blind switching</div>
+            <div class="pain-desc">Airtel enters fixed from <b style="font-weight:700;">KES 1,999</b>, Zuku discounts prepaid, Starlink shakes pricing - and users decide on rumor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT 42% · photo with caption chip -->
+    <div class="relative" style="width:42%;">
+      <div class="relative h-full w-full overflow-hidden" style="border-radius:18px; box-shadow:0 20px 44px -20px rgba(10,37,64,.4);">
+        <img src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b918201b38ce.jpg" alt="Woman using a smartphone"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div data-decor aria-hidden="true" class="absolute inset-x-0 bottom-0"
+             style="height:130px; background:linear-gradient(to top, rgba(10,22,40,.5), rgba(10,22,40,0));"></div>
+        <div class="chip absolute" style="left:16px; bottom:16px; font-weight:600; box-shadow:0 10px 24px rgba(10,37,64,.28);">
+          <i class="material-icons" style="font-size:16px; color:var(--accent);">sms</i>
+          Billing truth arrives as SMS - then disappears
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
