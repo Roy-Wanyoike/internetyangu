@@ -193,19 +193,28 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
             <CardTitle className="text-base">Live latency</CardTitle>
             <CardDescription>Last {chartData.length || 0} probes · pauses when the tab is hidden</CardDescription>
           </div>
-          {stats && (
-            <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
-              <span>
-                p50 <span className="font-medium text-foreground">{formatMs(stats.latencyP50Ms ?? 0)}</span>
-              </span>
-              <span>
-                p95 <span className="font-medium text-foreground">{formatMs(stats.latencyP95Ms ?? 0)}</span>
-              </span>
-              <span>
-                uptime <span className="font-medium text-foreground">{stats.uptimePct30d != null ? `${stats.uptimePct30d}%` : "—"}</span>
-              </span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            {stats && (
+              <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
+                <span>
+                  p50 <span className="font-medium text-foreground">{formatMs(stats.latencyP50Ms ?? 0)}</span>
+                </span>
+                <span>
+                  p95 <span className="font-medium text-foreground">{formatMs(stats.latencyP95Ms ?? 0)}</span>
+                </span>
+                <span>
+                  uptime <span className="font-medium text-foreground">{stats.uptimePct30d != null ? `${stats.uptimePct30d}%` : "—"}</span>
+                </span>
+              </div>
+            )}
+            {/* Deep-dive path (ISS-011): plain hash link — the #test view reacts to hashchange */}
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <a href="#test">
+                <Activity className="h-4 w-4" aria-hidden="true" />
+                Run full test
+              </a>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {chartData.length === 0 ? (

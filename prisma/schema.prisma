@@ -71,4 +71,8 @@ model PingSample {
   areaId        String?
   area          Area?     @relation(fields: [areaId], references: [id], onDelete: SetNull)
   contributorId String? // pseudonymous per-session key — never an account, phone or IP
+  // Measurement quality metadata (ISS-011 / Addendum §20) — captured by the
+  // Connection Test Center: reported connection type and stability flag.
+  connectionType String? // Network Information API effectiveType or "unknown"
+  stable         Boolean?
 }
