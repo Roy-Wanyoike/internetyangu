@@ -1,9 +1,0 @@
-fix(iss-002): surface API failures with descriptive error states + retry (#2)
-
-- Add reusable ErrorState panel (role=alert, cause, retry w/ spinner)
-- overview-tab: render statsError (was dead state); outage list errors no longer
-  silently render as empty; both loaders expose retrying state
-- spend/providers/outages tabs: replace bare error text with ErrorState + Retry
-- Removes silent catch([]) patterns for primary data loads
-
-Closes #2

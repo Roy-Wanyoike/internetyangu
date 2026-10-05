@@ -67,3 +67,7 @@ prompt
 /mini-services/
 /tests/
 Caddyfile
+
+# local PR/commit scratch
+.prbody.md
+.commitmsg
