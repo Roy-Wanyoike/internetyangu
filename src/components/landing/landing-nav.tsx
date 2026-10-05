@@ -15,6 +15,7 @@ import { Radio, Gauge, Menu, MapPin } from "lucide-react";
 
 const LINKS = [
   { href: "#find", label: "Find Internet" },
+  { href: "#test", label: "Test" },
   { href: "#product", label: "Product" },
   { href: "#how-it-works", label: "How it works" },
   { href: "#coverage", label: "Coverage" },

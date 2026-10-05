@@ -47,8 +47,10 @@ local-*
 dev.log
 dev.out.log
 server.log
-test
-prompt
+# local scratch files — anchored to the repo root so product code (e.g.
+# src/app/api/test, src/components/test) is never accidentally ignored
+/test
+/prompt
 
 # runtime database — local-first: user data never leaves their machine
 /db/

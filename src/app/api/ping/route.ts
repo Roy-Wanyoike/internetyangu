@@ -19,6 +19,10 @@ export async function GET() {
 // Hardened ingestion (ISS-016 / Addendum §27): per-client fixed-window
 // throttle, strict schema validation, provider/area existence checks and an
 // identical-payload flood guard. Rejections never persist anything.
+// ISS-011: optional measurement-quality metadata (Addendum §20) — the
+// Connection Test Center may attach the reported connection type and a
+// stability flag; both are strictly typed and everything else is still
+// rejected.
 const bodySchema = z
   .object({
     // Canonical field; `rttMs` remains a legacy alias for the original probe.
@@ -27,6 +31,8 @@ const bodySchema = z
     ok: z.boolean().optional(),
     providerId: z.string().min(1).max(64).optional(),
     areaId: z.string().min(1).max(64).optional(),
+    connectionType: z.enum(["slow-2g", "2g", "3g", "4g", "unknown"]).optional(),
+    stable: z.boolean().optional(),
   })
   .strict();
 
@@ -104,6 +110,8 @@ export async function POST(req: Request) {
       ok,
       ...(body.providerId ? { providerId: body.providerId } : {}),
       ...(body.areaId ? { areaId: body.areaId } : {}),
+      ...(body.connectionType ? { connectionType: body.connectionType } : {}),
+      ...(body.stable !== undefined ? { stable: body.stable } : {}),
     },
   });
 

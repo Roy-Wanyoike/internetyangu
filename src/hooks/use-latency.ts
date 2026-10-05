@@ -30,6 +30,19 @@ export interface LatencyState {
   connection: ConnectionInfo;
 }
 
+/**
+ * One latency probe: time a GET /api/ping with performance.now().
+ * Pure measurement — nothing is persisted here. Shared by the live monitor
+ * below and by the Connection Test Center's burst probes (ISS-011), so both
+ * always measure the same endpoint the same way.
+ */
+export async function measureRtt(signal?: AbortSignal): Promise<number> {
+  const started = performance.now();
+  const res = await fetch("/api/ping", { cache: "no-store", signal });
+  if (!res.ok) throw new Error(`ping failed: ${res.status}`);
+  return Math.round((performance.now() - started) * 10) / 10;
+}
+
 export function useLatency(active: boolean): LatencyState {
   const connection = useConnectionType();
   const [samples, setSamples] = useState<PingSampleDto[]>([]);
@@ -45,11 +58,8 @@ export function useLatency(active: boolean): LatencyState {
   const probe = useCallback(async () => {
     if (hiddenRef.current) return;
     setMeasuring(true);
-    const started = performance.now();
     try {
-      const res = await fetch("/api/ping", { cache: "no-store" });
-      if (!res.ok) throw new Error(`ping failed: ${res.status}`);
-      const rttMs = Math.round((performance.now() - started) * 10) / 10;
+      const rttMs = await measureRtt();
       const sample: PingSampleDto = { rttMs, ok: true, createdAt: new Date().toISOString() };
       setLatest(sample);
       setFailStreak(0);
