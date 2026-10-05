@@ -18,6 +18,7 @@ import {
   Line,
   XAxis,
   YAxis,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
 } from "recharts";
@@ -74,8 +75,12 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
   const chartData = samples.map((s, i) => ({
     i,
     rtt: s.ok ? s.rttMs : null,
+    // failed probes are drawn as destructive markers just under the poor band
+    failed: s.ok ? null : 220,
     time: new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
   }));
+  // ~5 time ticks regardless of window size
+  const tickInterval = Math.max(1, Math.floor(chartData.length / 5)) - 1;
 
   const toneBadge = (): { variant: "default" | "secondary" | "destructive" | "outline"; label: string } => {
     if (failStreak > 0) return { variant: "destructive", label: "Probing failed" };
@@ -216,8 +221,18 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
-                  <XAxis dataKey="i" tick={false} axisLine={false} tickLine={false} />
+                  <XAxis
+                    dataKey="i"
+                    tickFormatter={(i: number) => chartData[i]?.time ?? ""}
+                    interval={tickInterval}
+                    stroke="currentColor"
+                    fontSize={10}
+                    className="text-muted-foreground"
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <YAxis
+                    domain={[0, 240]}
                     stroke="currentColor"
                     fontSize={11}
                     className="text-muted-foreground"
@@ -225,9 +240,32 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
                     axisLine={false}
                     tickLine={false}
                   />
+                  {/* threshold bands: good/fair at 100ms, fair/poor at 200ms (F-06) */}
+                  <ReferenceLine
+                    y={100}
+                    stroke="var(--chart-2)"
+                    strokeDasharray="4 4"
+                    strokeOpacity={0.6}
+                    label={{ value: "fair", position: "insideBottomRight", fontSize: 9, fill: "var(--muted-foreground)" }}
+                  />
+                  <ReferenceLine
+                    y={200}
+                    stroke="var(--destructive)"
+                    strokeDasharray="4 4"
+                    strokeOpacity={0.5}
+                    label={{ value: "poor", position: "insideBottomRight", fontSize: 9, fill: "var(--muted-foreground)" }}
+                  />
                   <RechartsTooltip
-                    formatter={(value: number | string) => [`${value} ms`, "RTT"]}
-                    labelFormatter={() => ""}
+                    formatter={
+                      ((value: unknown, name: unknown) =>
+                        name === "rtt" ? [`${value} ms`, "RTT"] : ["probe failed", "status"]) as React.ComponentProps<
+                          typeof RechartsTooltip
+                        >["formatter"]
+                    }
+                    labelFormatter={(_label: string, payload) => {
+                      const p = payload?.[0]?.payload as { time?: string } | undefined;
+                      return p?.time ?? "";
+                    }}
                     contentStyle={{
                       background: "var(--popover)",
                       border: "1px solid var(--border)",
@@ -239,10 +277,20 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
                   <Line
                     type="monotone"
                     dataKey="rtt"
+                    name="rtt"
                     stroke="var(--chart-1)"
                     strokeWidth={2}
                     dot={false}
                     connectNulls={false}
+                    isAnimationActive={false}
+                  />
+                  {/* failed probes as visible markers, not silent gaps (F-06) */}
+                  <Line
+                    type="monotone"
+                    dataKey="failed"
+                    name="failed"
+                    stroke="none"
+                    dot={{ r: 3, fill: "var(--destructive)", strokeWidth: 0 }}
                     isAnimationActive={false}
                   />
                 </LineChart>
