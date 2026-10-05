@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ErrorState } from "./error-state";
 import {
   LineChart,
   Line,
@@ -29,26 +30,36 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
   const { samples, latest, failStreak } = useLatency(true);
   const [stats, setStats] = useState<Stats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
+  const [statsRetrying, setStatsRetrying] = useState(false);
   const [outages, setOutages] = useState<OutageEvent[] | null>(null);
+  const [outagesError, setOutagesError] = useState<string | null>(null);
+  const [outagesRetrying, setOutagesRetrying] = useState(false);
 
   const loadStats = useCallback(async () => {
+    setStatsRetrying(true);
     try {
       const res = await fetch("/api/stats", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setStats((await res.json()) as Stats);
       setStatsError(null);
     } catch (e) {
-      setStatsError(e instanceof Error ? e.message : "failed");
+      setStatsError(e instanceof Error ? e.message : "The stats request failed");
+    } finally {
+      setStatsRetrying(false);
     }
   }, []);
 
   const loadOutages = useCallback(async () => {
+    setOutagesRetrying(true);
     try {
       const res = await fetch("/api/outages", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setOutages((await res.json()) as OutageEvent[]);
-    } catch {
-      setOutages([]);
+      setOutagesError(null);
+    } catch (e) {
+      setOutagesError(e instanceof Error ? e.message : "The outage log request failed");
+    } finally {
+      setOutagesRetrying(false);
     }
   }, []);
 
@@ -85,7 +96,15 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
 
   return (
     <div className="space-y-6">
-      {/* KPI row */}
+      {/* KPI row — error state replaces silent eternal loading (F-02) */}
+      {statsError ? (
+        <ErrorState
+          title="Dashboard stats unavailable"
+          message={`The stats request failed (${statsError}).`}
+          onRetry={loadStats}
+          retrying={statsRetrying}
+        />
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
@@ -157,8 +176,7 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
           </CardContent>
         </Card>
       </div>
-
-      {/* Latency chart */}
+      )}
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
           <div>
@@ -237,7 +255,14 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
           </Button>
         </CardHeader>
         <CardContent>
-          {!outages ? (
+          {outagesError ? (
+            <ErrorState
+              title="Outage log unavailable"
+              message={`The outage log request failed (${outagesError}).`}
+              onRetry={loadOutages}
+              retrying={outagesRetrying}
+            />
+          ) : !outages ? (
             <div className="space-y-2">
               {Array.from({ length: 2 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />

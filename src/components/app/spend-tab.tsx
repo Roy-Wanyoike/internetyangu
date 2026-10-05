@@ -39,6 +39,7 @@ import {
   Loader2,
   Info,
 } from "lucide-react";
+import { ErrorState } from "./error-state";
 import { costPerGb, currentPeriod, formatGb, formatKes } from "@/lib/format";
 import { guessDataGb, guessProvider, parseBillingSms } from "@/lib/sms-parser";
 import type { BillingEntry } from "@/lib/types";
@@ -65,6 +66,7 @@ export function SpendTab() {
   const { toast } = useToast();
   const [entries, setEntries] = useState<BillingEntry[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<AddFormState>(EMPTY_FORM);
@@ -74,13 +76,16 @@ export function SpendTab() {
   const [parsed, setParsed] = useState<ReturnType<typeof parseBillingSms> | null>(null);
 
   const load = useCallback(async () => {
+    setRetrying(true);
     try {
       const res = await fetch("/api/entries", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setEntries((await res.json()) as BillingEntry[]);
       setLoadError(null);
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : "failed");
+      setLoadError(e instanceof Error ? e.message : "The billing history request failed");
+    } finally {
+      setRetrying(false);
     }
   }, []);
 
@@ -363,9 +368,12 @@ export function SpendTab() {
         </CardHeader>
         <CardContent>
           {loadError ? (
-            <p role="alert" className="py-6 text-center text-sm text-destructive">
-              Could not load bills ({loadError}). Refresh to retry.
-            </p>
+            <ErrorState
+              title="Billing history unavailable"
+              message={`The billing history request failed (${loadError}).`}
+              onRetry={load}
+              retrying={retrying}
+            />
           ) : !entries ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (

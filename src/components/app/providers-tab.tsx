@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Search, Star } from "lucide-react";
+import { ErrorState } from "./error-state";
 import { formatKes } from "@/lib/format";
 import { costPerGb } from "@/lib/format";
 import type { Provider } from "@/lib/types";
@@ -29,15 +30,27 @@ const COUNTRIES = ["ALL", "KE", "TZ", "UG", "RW"] as const;
 export function ProvidersTab() {
   const [providers, setProviders] = useState<Provider[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [query, setQuery] = useState("");
   const [country, setCountry] = useState<(typeof COUNTRIES)[number]>("ALL");
 
-  useEffect(() => {
-    fetch("/api/providers")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then(setProviders)
-      .catch((e) => setError(e instanceof Error ? e.message : "failed"));
+  const load = useCallback(async () => {
+    setRetrying(true);
+    try {
+      const res = await fetch("/api/providers");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setProviders((await res.json()) as Provider[]);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "The provider directory request failed");
+    } finally {
+      setRetrying(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const filtered = useMemo(() => {
     if (!providers) return null;
@@ -94,9 +107,12 @@ export function ProvidersTab() {
       <Card>
         <CardContent className="pt-6">
           {error ? (
-            <p role="alert" className="py-6 text-center text-sm text-destructive">
-              Could not load the directory ({error}). Refresh to retry.
-            </p>
+            <ErrorState
+              title="Provider directory unavailable"
+              message={`The directory request failed (${error}).`}
+              onRetry={load}
+              retrying={retrying}
+            />
           ) : !filtered ? (
             <div className="space-y-2">
               {Array.from({ length: 6 }).map((_, i) => (

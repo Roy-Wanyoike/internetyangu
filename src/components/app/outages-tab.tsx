@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, Download, Loader2, Plus, ShieldCheck } from "lucide-react";
+import { ErrorState } from "./error-state";
 import { durationMin, relativeTime } from "@/lib/format";
 import type { OutageEvent, Provider } from "@/lib/types";
 
@@ -44,6 +45,8 @@ function localIso(d: Date): string {
 export function OutagesTab() {
   const { toast } = useToast();
   const [outages, setOutages] = useState<OutageEvent[] | null>(null);
+  const [outagesError, setOutagesError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -53,12 +56,16 @@ export function OutagesTab() {
   const [notes, setNotes] = useState("");
 
   const load = useCallback(async () => {
+    setRetrying(true);
     try {
       const res = await fetch("/api/outages", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setOutages((await res.json()) as OutageEvent[]);
-    } catch {
-      setOutages([]);
+      setOutagesError(null);
+    } catch (e) {
+      setOutagesError(e instanceof Error ? e.message : "The outage log request failed");
+    } finally {
+      setRetrying(false);
     }
   }, []);
 
@@ -232,7 +239,14 @@ export function OutagesTab() {
           <CardDescription>Newest first · open outages are highlighted</CardDescription>
         </CardHeader>
         <CardContent>
-          {!outages ? (
+          {outagesError ? (
+            <ErrorState
+              title="Evidence log unavailable"
+              message={`The outage log request failed (${outagesError}).`}
+              onRetry={load}
+              retrying={retrying}
+            />
+          ) : !outages ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full" />
