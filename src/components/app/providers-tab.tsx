@@ -92,10 +92,11 @@ export function ProvidersTab() {
             <button
               key={c}
               onClick={() => setCountry(c)}
+              aria-pressed={country === c}
               className={
                 country === c
-                  ? "rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
-                  : "rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? "rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                  : "rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               }
             >
               {c === "ALL" ? "All" : c}
