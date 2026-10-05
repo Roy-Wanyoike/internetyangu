@@ -12,7 +12,7 @@ datasource db {
 
 // Crowdsourced directory of ISPs / connectivity providers (indicative prices)
 model Provider {
-  id            String  @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String
   country       String // "KE" | "TZ" | "UG" | "RW"
   technology    String // "Fiber" | "5G" | "4G" | "Fixed Wireless" | "Satellite"
@@ -21,6 +21,18 @@ model Provider {
   dataCapGb     Int // 0 = unlimited / fair-use
   rating        Float // community quality rating 0-5
   notes         String?
+  samples       PingSample[]
+}
+
+// Privacy-preserving geographic cell (Addendum §11): city/neighborhood level.
+// Intelligence is only ever aggregated per area — never an exact address.
+model Area {
+  id      String       @id @default(cuid())
+  slug    String       @unique // URL-safe identifier, e.g. "nairobi-westlands"
+  name    String // display name, e.g. "Nairobi – Westlands"
+  country String // "KE" | "TZ" | "UG" | "RW"
+  level   String // "neighborhood" | "city" | "region" — cell granularity
+  samples PingSample[]
 }
 
 // A bill / top-up the user paid for internet access
@@ -46,10 +58,17 @@ model OutageEvent {
   createdAt    DateTime  @default(now())
 }
 
-// Latency probe samples (browser measures RTT to /api/ping)
+// Latency probe samples (browser measures RTT to /api/ping).
+// providerId/areaId are optional: locally-generated probes carry neither;
+// contributed samples carry a pseudonymous session key only (Addendum §21).
 model PingSample {
-  id        String   @id @default(cuid())
-  rttMs     Float
-  ok        Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id            String    @id @default(cuid())
+  rttMs         Float
+  ok            Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  providerId    String?
+  provider      Provider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  areaId        String?
+  area          Area?     @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  contributorId String? // pseudonymous per-session key — never an account, phone or IP
 }

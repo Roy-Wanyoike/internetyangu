@@ -21,10 +21,13 @@ export async function POST(req: Request) {
 
     const sample = await db.pingSample.create({ data: { rttMs, ok } });
 
-    // Prune: keep the newest 1000 samples (local-first DB hygiene)
-    const count = await db.pingSample.count();
+    // Prune: keep the newest 1000 locally-generated samples (local-first DB
+    // hygiene). Area-attributed samples are intelligence data — they age out
+    // via the 30-day aggregation window instead of being pruned here.
+    const count = await db.pingSample.count({ where: { areaId: null } });
     if (count > 1000) {
       const oldest = await db.pingSample.findMany({
+        where: { areaId: null },
         orderBy: { createdAt: "desc" },
         skip: 1000,
         take: count - 1000,
