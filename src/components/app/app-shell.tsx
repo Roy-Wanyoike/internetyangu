@@ -49,7 +49,7 @@ export function AppShell({ onExit }: { onExit: () => void }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
+      <main id="main-content" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="h-11 w-full justify-start gap-1 overflow-x-auto rounded-xl bg-secondary p-1 sm:w-auto">
             {TABS.map((t) => (

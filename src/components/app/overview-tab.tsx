@@ -111,7 +111,12 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
             <CardDescription className="flex items-center gap-1.5">
               <Activity className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> Connection now
             </CardDescription>
-            <CardTitle className="flex items-baseline gap-2 text-2xl">
+            {/* aria-live: connectivity change is the product's core signal — announce it (F-04) */}
+            <CardTitle
+              className="flex items-baseline gap-2 text-2xl"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {latest ? formatMs(latest.rttMs) : failStreak > 0 ? "Offline" : "…"}
               <Badge variant={conn.variant} className="translate-y-0.5 text-[10px]">
                 {conn.label}
@@ -204,7 +209,11 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
               Taking the first measurement…
             </div>
           ) : (
-            <div className="h-48">
+            <div
+              className="h-48"
+              role="img"
+              aria-label={`Live latency, last ${chartData.length} probes, median ${stats?.latencyP50Ms ?? "n/a"} milliseconds, ${samples.filter((s) => !s.ok).length} failed`}
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
                   <XAxis dataKey="i" tick={false} axisLine={false} tickLine={false} />
