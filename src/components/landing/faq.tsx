@@ -4,8 +4,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const FAQS = [
   {
-    q: "How is InternetYangu different from Dishylink?",
-    a: "Dishylink is a brilliant open-source monitor — but only for Starlink. InternetYangu takes the same local-first, privacy-first philosophy and generalizes it to every network East Africans actually use: Safaricom Fiber, Faiba, Zuku, Airtel, Poa, Mawingu, Starlink and more. It adds a spend-tracking layer built on mobile-money billing SMS, which is how the region actually pays for internet.",
+    q: "How is InternetYangu different from a speed-test app?",
+    a: "A speed test shows one moment, on one network, then forgets it. InternetYangu is local-first and privacy-first, and watches every network East Africans actually use: Safaricom Fiber, Faiba, Zuku, Airtel, Poa, Mawingu, Starlink and more. It keeps an honest outage history and adds a spend-tracking layer built on mobile-money billing SMS — which is how the region actually pays for internet.",
   },
   {
     q: "Do you read my SMS or see my M-Pesa PIN?",
@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: "Is the code open source?",
-    a: "Yes — inspired by Dishylink's open-source model, the core is developed in the open on GitHub. Issues and pull requests are public and every change is traceable.",
+    a: "Yes — the core is developed in the open on GitHub under the MIT license. Issues and pull requests are public and every change is traceable.",
   },
 ];
 

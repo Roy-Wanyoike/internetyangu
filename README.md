@@ -2,10 +2,9 @@
 
 > **"Yangu" means "mine" — my internet: measured, priced, and defended.**
 
-Universal **connectivity + spend monitor** for Kenya and East Africa. Inspired by
-[Dishylink](https://github.com/DaveyHert/Dishylink) — a brilliant open-source Starlink monitor —
-generalized to *every* network the region actually uses: Safaricom Fiber, Faiba 5G, Zuku, Airtel
-Fixed, Poa, Mawingu, Starlink and beyond.
+Universal **connectivity + spend monitor** for Kenya and East Africa — built for
+*every* network the region actually uses: Safaricom Fiber, Faiba 5G, Zuku, Airtel
+Fixed, Poa, Mawingu, Starlink and beyond. Local-first, privacy-first, open source.
 
 ## Why
 
@@ -75,4 +74,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full audit → issue → PR loop,
 
 ## License
 
-MIT — in the spirit of Dishylink.
+MIT — open source, in the spirit of community-built utilities.

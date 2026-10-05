@@ -60,18 +60,7 @@ export function Footer({ onLaunch }: { onLaunch: () => void }) {
             <div>
               <p className="text-sm font-semibold">Credits</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  Inspired by{" "}
-                  <a
-                    href="https://github.com/DaveyHert/Dishylink"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline decoration-dotted hover:text-foreground"
-                  >
-                    Dishylink
-                  </a>{" "}
-                  (MIT)
-                </li>
+                <li>Open source under the MIT license</li>
                 <li>Market data: CA Kenya, FY2025 operator reports</li>
                 <li>Prices indicative — verify with operator</li>
               </ul>
