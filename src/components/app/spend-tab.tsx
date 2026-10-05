@@ -24,6 +24,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -443,7 +454,7 @@ export function SpendTab() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Billing history</CardTitle>
-          <CardDescription>Newest first · tap the trash icon to remove an entry</CardDescription>
+          <CardDescription>Newest first · deletion asks for confirmation</CardDescription>
         </CardHeader>
         <CardContent>
           {loadError ? (
@@ -504,15 +515,38 @@ export function SpendTab() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => remove(e.id)}
-                            aria-label={`Delete ${e.providerName} bill for ${e.periodMonth}`}
-                          >
-                            <Trash2 className="h-4 w-4" aria-hidden="true" />
-                          </Button>
+                          {/* destructive confirmation per audit 001 F-07 / checklist §19 */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                aria-label={`Delete ${e.providerName} bill for ${e.periodMonth}`}
+                              >
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this bill?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {e.providerName} · {e.periodMonth} · {formatKes(e.amountKes)} — this
+                                  permanently removes the entry from your local ledger and your
+                                  cost-per-GB totals will recalculate.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-white hover:bg-destructive/90"
+                                  onClick={() => remove(e.id)}
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TableCell>
                       </TableRow>
                     );
