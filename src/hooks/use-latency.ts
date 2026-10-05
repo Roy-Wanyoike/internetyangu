@@ -46,7 +46,7 @@ export function useLatency(active: boolean): LatencyState {
       void fetch("/api/ping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rttMs, ok: true }),
+        body: JSON.stringify({ latencyMs: rttMs, ok: true }),
       }).catch(() => undefined);
     } catch {
       const sample: PingSampleDto = { rttMs: -1, ok: false, createdAt: new Date().toISOString() };
@@ -56,7 +56,7 @@ export function useLatency(active: boolean): LatencyState {
       void fetch("/api/ping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rttMs: 0, ok: false }),
+        body: JSON.stringify({ latencyMs: 0, ok: false }),
       }).catch(() => undefined);
     } finally {
       setMeasuring(false);
