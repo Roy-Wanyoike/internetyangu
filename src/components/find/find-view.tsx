@@ -116,6 +116,11 @@ export function FindView({ onExit }: { onExit: () => void }) {
     void loadAreas();
   }, [loadAreas]);
 
+  // Arriving via a plain #find anchor keeps the landing scroll offset — reset.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
   useEffect(() => {
     if (selectedSlug) void loadIntel(selectedSlug);
   }, [selectedSlug, loadIntel]);

@@ -48,6 +48,7 @@ export default function Home() {
 
   const launch = useCallback(() => setHashView("app"), [setHashView]);
   const exit = useCallback(() => setHashView("landing"), [setHashView]);
+  const openFind = useCallback(() => setHashView("find"), [setHashView]);
 
   if (view === "app") {
     return (
@@ -85,9 +86,9 @@ export default function Home() {
       >
         Skip to content
       </a>
-      <LandingNav onLaunch={launch} />
+      <LandingNav onLaunch={launch} onFind={openFind} />
       <main id="main-content" className="flex-1">
-        <Hero onLaunch={launch} />
+        <Hero onLaunch={launch} onFind={openFind} />
         <Pillars />
         <HowItWorks />
         <Coverage />
