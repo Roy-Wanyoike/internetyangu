@@ -38,6 +38,7 @@ export interface Stats {
   avgCostPerGbKes: number | null;
   entriesCount: number;
   outages30d: number;
+  openOutages: number;
   downtimeMin30d: number;
   uptimePct30d: number | null;
   latencyP50Ms: number | null;

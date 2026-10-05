@@ -62,7 +62,7 @@ async function main() {
   });
 
   // 72 historical latency samples so the dashboard has history on first load
-  const samples = [];
+  const samples: Array<{ rttMs: number; ok: boolean; createdAt: Date }> = [];
   let seedVal = 42;
   const rand = () => {
     seedVal = (seedVal * 1103515245 + 12345) % 2147483648;
