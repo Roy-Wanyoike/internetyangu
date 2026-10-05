@@ -35,8 +35,9 @@ export function Hero({ onLaunch }: { onLaunch: () => void }) {
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             InternetYangu is a universal connectivity &amp; spend monitor. It measures your connection
             quality, turns billing SMS into cost-per-GB truth, and builds the evidence you need when
-            the network you pay for lets you down. Inspired by Dishylink — generalized for
-            Safaricom, Faiba, Zuku, Airtel, Poa, Mawingu, Starlink and beyond.
+            the network you pay for lets you down. Built for Safaricom, Faiba, Zuku,
+            Airtel, Poa, Mawingu, Starlink and beyond — every network East Africans
+            actually use.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button onClick={onLaunch} size="lg" className="gap-2">

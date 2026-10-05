@@ -20,14 +20,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "InternetYangu — Every shilling you spend on internet, finally visible",
   description:
-    "Universal connectivity & spend monitor for Kenya and East Africa. Measure your connection, track every shilling across providers, and act on bad service — inspired by Dishylink, built for all networks.",
+    "Universal connectivity & spend monitor for Kenya and East Africa. Measure your connection, track every shilling across providers, and act on bad service — built for every network, not just satellite.",
   keywords: [
     "internet monitor",
     "data spend tracker",
     "Kenya ISP",
     "M-Pesa billing",
     "Starlink monitor",
-    "Dishylink",
+    "cost per GB",
     "East Africa internet",
   ],
   authors: [{ name: "InternetYangu" }],
