@@ -4,15 +4,99 @@
  *  - Airtel Kenya fixed internet entry: KES 1,999 (15 Mbps)  [research anchor]
  *  - Starlink Kenya: ~19,470 subscribers Sep-2025, standard ~KES 6,500/mo
  *  - Kenya fixed lines: 2.84M (Jun-2026, +32.4% YoY) — Communications Authority
+ *
+ * Area intelligence samples are ILLUSTRATIVE demo data (Addendum §38): every
+ * API response built on them is stamped `dataBasis: "illustrative-seed"` and
+ * the UI must show the illustrative-dataset banner wherever they are used.
+ * Nakuru – Milimani is intentionally under-sampled (<5 samples) to exercise
+ * the insufficient-data path.
  */
 import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 
+// Deterministic RNG so every seed run yields the same distributions.
+let seedVal = 42;
+const rand = () => {
+  seedVal = (seedVal * 1103515245 + 12345) % 2147483648;
+  return seedVal / 2147483648;
+};
+
+// Illustrative per-area provider behaviour (latency/jitter in ms).
+type ProviderSpec = {
+  provider: string;
+  baseRtt: number;
+  jitter: number;
+  failureRate: number;
+  samples: number;
+  contributors: number;
+};
+
+type AreaSpec = {
+  slug: string;
+  name: string;
+  country: string;
+  level: string;
+  providers: ProviderSpec[];
+};
+
+const AREA_SPECS: AreaSpec[] = [
+  {
+    slug: "nairobi-westlands",
+    name: "Nairobi – Westlands",
+    country: "KE",
+    level: "neighborhood",
+    providers: [
+      { provider: "Safaricom Fiber", baseRtt: 24, jitter: 14, failureRate: 0.03, samples: 140, contributors: 9 },
+      { provider: "Faiba 5G Home", baseRtt: 27, jitter: 12, failureRate: 0.04, samples: 110, contributors: 7 },
+      { provider: "Zuku Fiber", baseRtt: 41, jitter: 22, failureRate: 0.07, samples: 62, contributors: 5 },
+      { provider: "Airtel Fixed Internet", baseRtt: 33, jitter: 18, failureRate: 0.05, samples: 42, contributors: 4 },
+      { provider: "Poa Internet", baseRtt: 38, jitter: 20, failureRate: 0.06, samples: 28, contributors: 3 },
+    ],
+  },
+  {
+    slug: "nairobi-kileleshwa",
+    name: "Nairobi – Kileleshwa",
+    country: "KE",
+    level: "neighborhood",
+    providers: [
+      { provider: "Faiba 5G Home", baseRtt: 22, jitter: 10, failureRate: 0.03, samples: 150, contributors: 8 },
+      { provider: "Airtel Fixed Internet", baseRtt: 26, jitter: 14, failureRate: 0.04, samples: 120, contributors: 7 },
+      { provider: "Safaricom Fiber", baseRtt: 45, jitter: 25, failureRate: 0.09, samples: 95, contributors: 6 },
+      { provider: "Poa Internet", baseRtt: 35, jitter: 18, failureRate: 0.06, samples: 40, contributors: 3 },
+      { provider: "Starlink Kenya", baseRtt: 110, jitter: 40, failureRate: 0.05, samples: 30, contributors: 4 },
+    ],
+  },
+  {
+    slug: "mombasa",
+    name: "Mombasa",
+    country: "KE",
+    level: "city",
+    providers: [
+      { provider: "Safaricom Fiber", baseRtt: 29, jitter: 15, failureRate: 0.04, samples: 120, contributors: 7 },
+      { provider: "Zuku Fiber", baseRtt: 47, jitter: 26, failureRate: 0.08, samples: 82, contributors: 5 },
+      { provider: "Airtel Fixed Internet", baseRtt: 38, jitter: 20, failureRate: 0.07, samples: 46, contributors: 4 },
+      { provider: "Starlink Kenya", baseRtt: 120, jitter: 45, failureRate: 0.06, samples: 26, contributors: 3 },
+    ],
+  },
+  {
+    // Sparse on purpose: 3 samples total → API must answer insufficientData.
+    slug: "nakuru-milimani",
+    name: "Nakuru – Milimani",
+    country: "KE",
+    level: "neighborhood",
+    providers: [
+      { provider: "Poa Internet", baseRtt: 40, jitter: 20, failureRate: 0, samples: 2, contributors: 2 },
+      { provider: "Mawingu Networks", baseRtt: 52, jitter: 20, failureRate: 0, samples: 1, contributors: 1 },
+    ],
+  },
+];
+
 async function main() {
   await db.pingSample.deleteMany();
   await db.outageEvent.deleteMany();
   await db.billingEntry.deleteMany();
+  await db.area.deleteMany();
   await db.provider.deleteMany();
 
   await db.provider.createMany({
@@ -30,7 +114,50 @@ async function main() {
     ],
   });
 
+  const providers = await db.provider.findMany({ select: { id: true, name: true } });
+  const providerIdByName = new Map(providers.map((p) => [p.name, p.id]));
+
+  // --- Illustrative area intelligence samples (last 30 days) -----------------
   const now = new Date();
+  for (const spec of AREA_SPECS) {
+    const area = await db.area.create({
+      data: { slug: spec.slug, name: spec.name, country: spec.country, level: spec.level },
+    });
+    const rows: Array<{
+      rttMs: number;
+      ok: boolean;
+      createdAt: Date;
+      providerId: string;
+      areaId: string;
+      contributorId: string;
+    }> = [];
+    for (const p of spec.providers) {
+      const providerId = providerIdByName.get(p.provider);
+      if (!providerId) continue;
+      let pushed = 0;
+      for (let c = 0; c < p.contributors && pushed < p.samples; c++) {
+        const contributorId = `seed-${spec.slug}-${p.provider.toLowerCase().replace(/\s+/g, "-")}-c${c + 1}`;
+        // Spread each contributor's samples over the 30-day window.
+        const perContributor = Math.ceil(p.samples / p.contributors);
+        for (let i = 0; i < perContributor && pushed < p.samples; i++) {
+          const spike = rand() > 0.95;
+          const rttMs = Math.round((p.baseRtt + rand() * p.jitter + (spike ? 180 : 0)) * 10) / 10;
+          const ok = rand() >= p.failureRate;
+          rows.push({
+            rttMs,
+            ok,
+            createdAt: new Date(now.getTime() - rand() * 30 * 864e5),
+            providerId,
+            areaId: area.id,
+            contributorId,
+          });
+          pushed++;
+        }
+      }
+    }
+    await db.pingSample.createMany({ data: rows });
+  }
+
   const month = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
   const thisM = month(now);
   const lastM = month(new Date(now.getFullYear(), now.getMonth() - 1, 1));
@@ -61,13 +188,9 @@ async function main() {
     ],
   });
 
-  // 72 historical latency samples so the dashboard has history on first load
+  // 72 local latency samples so the dashboard has history on first load
+  // (no area/provider attribution — these are "my own probes").
   const samples: Array<{ rttMs: number; ok: boolean; createdAt: Date }> = [];
-  let seedVal = 42;
-  const rand = () => {
-    seedVal = (seedVal * 1103515245 + 12345) % 2147483648;
-    return seedVal / 2147483648;
-  };
   for (let i = 0; i < 72; i++) {
     const spike = rand() > 0.93;
     samples.push({
@@ -80,9 +203,11 @@ async function main() {
 
   console.log("Seed complete:", {
     providers: await db.provider.count(),
+    areas: await db.area.count(),
     entries: await db.billingEntry.count(),
     outages: await db.outageEvent.count(),
     pings: await db.pingSample.count(),
+    areaPings: await db.pingSample.count({ where: { areaId: { not: null } } }),
   });
 }
 

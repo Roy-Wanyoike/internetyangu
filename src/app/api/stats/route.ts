@@ -24,7 +24,9 @@ export async function GET() {
     db.outageEvent.findMany({ where: { startedAt: { gte: d30 } }, select: { startedAt: true, endedAt: true } }),
     db.outageEvent.findMany({ where: { startedAt: { gte: d30 }, endedAt: null }, select: { id: true } }),
     db.pingSample.findMany({
-      where: { createdAt: { gte: d30 } },
+      // Personal stats only: area-attributed samples are crowdsourced
+      // intelligence and must not distort "my connection" KPIs.
+      where: { createdAt: { gte: d30 }, areaId: null },
       orderBy: { createdAt: "desc" },
       take: 1000,
       select: { rttMs: true, ok: true },
