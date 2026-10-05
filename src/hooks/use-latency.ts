@@ -4,11 +4,20 @@
 // measures round-trip time with performance.now(), keeps the last WINDOW
 // samples in memory, and persists each reading to the local database.
 // Pauses automatically when the tab is hidden (battery + data friendly).
+//
+// Mobile-data guardrails (ISS-012 / Addendum §7, §30):
+//   - metered connection (2g/slow-2g/3g, or the user's Data Saver is on)
+//     → probe interval degrades from 5s to 60s;
+//   - saveData=true → background probes are OFF entirely (the manual test
+//     in the Connection Test Center stays available).
+// We never silently consume significant mobile data.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PingSampleDto } from "@/lib/types";
+import { useConnectionType, type ConnectionInfo } from "@/hooks/use-connection-type";
 
 const INTERVAL_MS = 5000;
+const METERED_INTERVAL_MS = 60000;
 const WINDOW = 60;
 
 export interface LatencyState {
@@ -18,9 +27,11 @@ export interface LatencyState {
   measuring: boolean;
   pause: () => void;
   resume: () => void;
+  connection: ConnectionInfo;
 }
 
 export function useLatency(active: boolean): LatencyState {
+  const connection = useConnectionType();
   const [samples, setSamples] = useState<PingSampleDto[]>([]);
   const [latest, setLatest] = useState<PingSampleDto | null>(null);
   const [failStreak, setFailStreak] = useState(0);
@@ -71,12 +82,17 @@ export function useLatency(active: boolean): LatencyState {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  useEffect(() => {
-    if (!active || paused) return;
-    void probe();
-    const id = setInterval(() => void probe(), INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [active, paused, probe]);
+  // Background probing policy: off entirely under Data Saver, 60s on metered
+  // links, otherwise the normal 5s cadence. Manual tests are never blocked.
+  const backgroundProbesOn = !connection.saveData;
+  const intervalMs = connection.metered ? METERED_INTERVAL_MS : INTERVAL_MS;
 
-  return { samples, latest, failStreak, measuring, pause, resume };
+  useEffect(() => {
+    if (!active || paused || !backgroundProbesOn) return;
+    void probe();
+    const id = setInterval(() => void probe(), intervalMs);
+    return () => clearInterval(id);
+  }, [active, paused, backgroundProbesOn, intervalMs, probe]);
+
+  return { samples, latest, failStreak, measuring, pause, resume, connection };
 }

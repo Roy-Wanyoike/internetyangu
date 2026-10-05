@@ -25,6 +25,22 @@ Speed-test apps show a moment. Bank apps show a debit. InternetYangu connects th
 | **Track** | Billing SMS parsed on-device → cost-per-GB truth across providers | Browser core / optional Android shell |
 | **Act** | Outage evidence packs (JSON export), provider directory comparison | Browser core |
 
+## Low-bandwidth design
+
+InternetYangu must remain usable on the connections it diagnoses (Addendum §30). The app reads the
+browser's Network Information API (`navigator.connection`) via a SSR-safe hook and changes behavior
+visibly:
+
+- **Metered links** (`effectiveType` 2g / slow-2g / 3g, or the user's Data Saver is on): the
+  background latency probe degrades from every 5s to every 60s, and a chip in the dashboard header
+  explains why. Nothing is ever consumed silently.
+- **Data Saver on** (`saveData: true`): background probes are paused entirely — a "Data Saver
+  active — background tests paused" chip is shown. Manual tests in the Connection Test Center stay
+  available, state their estimated data usage before running, and can be cancelled mid-flight.
+- Where the API is unavailable (Safari, Firefox, SSR) the connection type is reported as
+  "Unknown" — we degrade gracefully instead of guessing.
+- Dismissal of the notice chips lasts for the session only; the chip reappears on the next visit.
+
 ## Architecture — local-first, privacy-first
 
 - **Tier 1 — Browser core** (this repo): PWA that measures latency and parses pasted billing SMS

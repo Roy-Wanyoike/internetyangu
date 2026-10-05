@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ConnectionNotice } from "./connection-notice";
 import { Radio, ArrowLeft, Gauge, ReceiptText, Signal, AlertTriangle } from "lucide-react";
 import { OverviewTab } from "./overview-tab";
 import { SpendTab } from "./spend-tab";
@@ -38,6 +39,10 @@ export function AppShell({ onExit }: { onExit: () => void }) {
             </span>
             <span className="ml-1 hidden rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground sm:inline-block">
               My connection, my data
+            </span>
+            {/* Mobile-data guardrail notice (ISS-012) — Data Saver / metered chip */}
+            <span className="ml-auto inline-flex md:ml-1">
+              <ConnectionNotice />
             </span>
           </div>
           <div className="flex items-center gap-2">
