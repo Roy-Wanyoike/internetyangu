@@ -11,9 +11,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Radio, Gauge, Menu } from "lucide-react";
+import { Radio, Gauge, Menu, MapPin } from "lucide-react";
 
 const LINKS = [
+  { href: "#find", label: "Find Internet" },
   { href: "#product", label: "Product" },
   { href: "#how-it-works", label: "How it works" },
   { href: "#coverage", label: "Coverage" },
@@ -21,7 +22,7 @@ const LINKS = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export function LandingNav({ onLaunch }: { onLaunch: () => void }) {
+export function LandingNav({ onLaunch, onFind }: { onLaunch: () => void; onFind: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -92,6 +93,17 @@ export function LandingNav({ onLaunch }: { onLaunch: () => void }) {
               >
                 <Gauge className="h-4 w-4" aria-hidden="true" />
                 Open Dashboard
+              </Button>
+              <Button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onFind();
+                }}
+                variant="outline"
+                className="mt-2 min-h-11 w-full gap-2"
+              >
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+                Find the best internet near you
               </Button>
             </SheetContent>
           </Sheet>

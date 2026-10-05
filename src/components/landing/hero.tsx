@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Activity, ArrowRight, MapPin, Satellite, Wifi, Signal } from "lucide-react";
+import { Activity, ArrowRight, MapPin, Satellite, Wifi, Signal, Gauge } from "lucide-react";
 
 const SCOPE_CHIPS = [
   { icon: Signal, label: "Mobile & fixed wireless" },
@@ -10,7 +10,7 @@ const SCOPE_CHIPS = [
   { icon: Satellite, label: "Satellite" },
 ];
 
-export function Hero({ onLaunch }: { onLaunch: () => void }) {
+export function Hero({ onLaunch, onFind }: { onLaunch: () => void; onFind: () => void }) {
   return (
     <section id="top" className="relative overflow-hidden">
       {/* decorative lumen glow */}
@@ -29,23 +29,25 @@ export function Hero({ onLaunch }: { onLaunch: () => void }) {
             Built for Kenya &amp; East Africa — every network, not just satellite
           </Badge>
           <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-            Every shilling you spend on internet,{" "}
-            <span className="text-primary">finally visible.</span>
+            Know your internet.{" "}
+            <span className="text-primary">Choose better. Pay smarter.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            InternetYangu is a universal connectivity &amp; spend monitor. It measures your connection
-            quality, turns billing SMS into cost-per-GB truth, and builds the evidence you need when
-            the network you pay for lets you down. Built for Safaricom, Faiba, Zuku,
-            Airtel, Poa, Mawingu, Starlink and beyond — every network East Africans
-            actually use.
+            InternetYangu is a privacy-first connectivity &amp; spend monitor: it measures your
+            connection quality, turns billing SMS into cost-per-GB truth, and shows which providers
+            actually perform best in your area. Built for Safaricom, Faiba, Zuku, Airtel, Poa,
+            Mawingu, Starlink and beyond — every network East Africans actually use.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button onClick={onLaunch} size="lg" className="gap-2">
-              Open Dashboard
+              <Gauge className="h-4 w-4" aria-hidden="true" />
+              Monitor my internet
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#how-it-works">See how it works</a>
+            <Button onClick={onFind} size="lg" variant="outline" className="gap-2">
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              Find the best internet near you
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
           <div className="mt-8 flex flex-wrap gap-2">
