@@ -1,0 +1,55 @@
+// InternetYangu — universal connectivity & spend monitor (East Africa)
+// Local-first: all measurement and billing data lives in the user's own database.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Crowdsourced directory of ISPs / connectivity providers (indicative prices)
+model Provider {
+  id            String  @id @default(cuid())
+  name          String
+  country       String // "KE" | "TZ" | "UG" | "RW"
+  technology    String // "Fiber" | "5G" | "4G" | "Fixed Wireless" | "Satellite"
+  entryPriceKes Int // cheapest advertised monthly plan, KES equivalent
+  avgSpeedMbps  Int // typical real-world downlink on the entry plan
+  dataCapGb     Int // 0 = unlimited / fair-use
+  rating        Float // community quality rating 0-5
+  notes         String?
+}
+
+// A bill / top-up the user paid for internet access
+model BillingEntry {
+  id           String   @id @default(cuid())
+  providerName String
+  planName     String?
+  amountKes    Float
+  dataGb       Float
+  periodMonth  String // "YYYY-MM" the bill covers
+  paymentRef   String? // M-Pesa / Airtel Money transaction code
+  source       String   @default("manual") // "manual" | "sms" | "csv"
+  createdAt    DateTime @default(now())
+}
+
+// A connectivity outage reported by the user (evidence for complaints/switching)
+model OutageEvent {
+  id           String    @id @default(cuid())
+  providerName String
+  startedAt    DateTime
+  endedAt      DateTime?
+  notes        String?
+  createdAt    DateTime  @default(now())
+}
+
+// Latency probe samples (browser measures RTT to /api/ping)
+model PingSample {
+  id        String   @id @default(cuid())
+  rttMs     Float
+  ok        Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

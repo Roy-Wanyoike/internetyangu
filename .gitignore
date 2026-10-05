@@ -1,2 +1,69 @@
-skills/
-node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — never commit secrets or local config
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+local-*
+.claude
+.z-ai-config
+*.log
+dev.log
+dev.out.log
+server.log
+test
+prompt
+
+# runtime database — local-first: user data never leaves their machine
+/db/
+
+# sandbox / tooling artifacts (not part of the product)
+/skills/
+/scripts/
+/tools/
+/.tools/
+/.zscripts/
+/tool-results/
+/upload/
+/download/
+/worklog.md
+/examples/
+/mini-services/
+/tests/
+Caddyfile
