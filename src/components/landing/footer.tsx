@@ -50,6 +50,7 @@ export function Footer({ onLaunch }: { onLaunch: () => void }) {
                     <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" /> FAQ
                   </a>
                 </li>
+                <li><a href="#privacy" className="hover:text-foreground">Privacy Center</a></li>
                 <li>
                   <button onClick={onLaunch} className="hover:text-foreground">
                     Open Dashboard

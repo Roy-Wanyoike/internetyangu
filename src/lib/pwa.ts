@@ -54,3 +54,17 @@ export function markInstallDeclined(): void {
     // Private mode — the card just hides for this mount.
   }
 }
+
+/** Remove the service worker's API runtime caches (Directive §17: deletion
+ * propagates through caches). Called after a successful data purge so cached
+ * API responses from before the deletion are never served again. */
+export function clearRuntimeApiCaches(): void {
+  if (typeof window === "undefined" || !("caches" in window)) return;
+  void caches.keys().then((names) =>
+    Promise.all(
+      names
+        .filter((name) => name.startsWith("internetyangu-api-"))
+        .map((name) => caches.delete(name)),
+    ),
+  );
+}

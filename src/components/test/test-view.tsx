@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import { measureRtt } from "@/hooks/use-latency";
 import { useConnectionType } from "@/hooks/use-connection-type";
+import { getContributorKey } from "@/lib/contributor";
 import {
   TEST_DATA_BUDGET_MB,
   LATENCY_PROBE_COUNT,
@@ -252,7 +253,10 @@ export function TestView({ onExit }: { onExit: () => void }) {
     try {
       const res = await fetch("/api/ping", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Contributor-Key": getContributorKey(),
+        },
         body: JSON.stringify({
           latencyMs: Math.round(median * 10) / 10,
           ok: true,
