@@ -53,6 +53,38 @@ interface AddFormState {
   paymentRef: string;
 }
 
+// Field-level errors per audit 001 F-03 (master checklist §15):
+// what is required, what went wrong, and where — not a single summary line.
+interface FieldErrors {
+  providerName?: string;
+  amountKes?: string;
+  dataGb?: string;
+  periodMonth?: string;
+}
+
+const FIELD_ORDER: Array<keyof FieldErrors> = ["providerName", "amountKes", "dataGb", "periodMonth"];
+const FIELD_INPUT_ID: Record<keyof FieldErrors, string> = {
+  providerName: "provider",
+  amountKes: "amount",
+  dataGb: "dataGb",
+  periodMonth: "period",
+};
+
+function validateForm(form: AddFormState): FieldErrors {
+  const errors: FieldErrors = {};
+  const amountKes = Number(form.amountKes);
+  const dataGb = Number(form.dataGb);
+  if (!form.providerName.trim()) errors.providerName = "Provider is required.";
+  else if (form.providerName.trim().length > 80) errors.providerName = "Keep the provider name under 80 characters.";
+  if (!form.amountKes.trim()) errors.amountKes = "Amount is required.";
+  else if (!Number.isFinite(amountKes) || amountKes <= 0) errors.amountKes = "Enter a positive amount in KES.";
+  if (!form.dataGb.trim()) errors.dataGb = "Data volume is required.";
+  else if (!Number.isFinite(dataGb) || dataGb <= 0) errors.dataGb = "Enter a positive number of GB.";
+  if (!form.periodMonth.trim()) errors.periodMonth = "Period is required.";
+  else if (!/^\d{4}-\d{2}$/.test(form.periodMonth)) errors.periodMonth = "Use the YYYY-MM format, e.g. 2026-10.";
+  return errors;
+}
+
 const EMPTY_FORM: AddFormState = {
   providerName: "",
   planName: "",
@@ -71,6 +103,7 @@ export function SpendTab() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<AddFormState>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsText, setSmsText] = useState("");
   const [parsed, setParsed] = useState<ReturnType<typeof parseBillingSms> | null>(null);
@@ -102,14 +135,31 @@ export function SpendTab() {
     return { spend, cpg: costPerGb(spend, gb), count: mtd.length };
   })();
 
+  const setField = (key: keyof AddFormState, value: string) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    // clear the field's own error as the user fixes it
+    if (key in FIELD_INPUT_ID) {
+      setFieldErrors((prev) => {
+        if (!(key in prev)) return prev;
+        const next = { ...prev };
+        delete next[key as keyof FieldErrors];
+        return next;
+      });
+    }
+  };
+
   const submit = async () => {
     setFormError(null);
+    const errors = validateForm(form);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      // move focus to the first invalid field so keyboard + SR users land on the fix
+      const firstInvalid = FIELD_ORDER.find((k) => errors[k]);
+      if (firstInvalid) document.getElementById(FIELD_INPUT_ID[firstInvalid])?.focus();
+      return;
+    }
     const amountKes = Number(form.amountKes);
     const dataGb = Number(form.dataGb);
-    if (!form.providerName.trim()) return setFormError("Provider is required.");
-    if (!Number.isFinite(amountKes) || amountKes <= 0) return setFormError("Amount must be a positive number.");
-    if (!Number.isFinite(dataGb) || dataGb <= 0) return setFormError("Data (GB) must be a positive number.");
-    if (!/^\d{4}-\d{2}$/.test(form.periodMonth)) return setFormError("Period must match YYYY-MM.");
 
     setSaving(true);
     try {
@@ -132,6 +182,7 @@ export function SpendTab() {
       }
       toast({ title: "Bill saved", description: `${formatKes(amountKes)} · ${form.providerName.trim()}` });
       setForm(EMPTY_FORM);
+      setFieldErrors({});
       setOpen(false);
       await load();
     } catch (e) {
@@ -200,8 +251,15 @@ export function SpendTab() {
                     id="provider"
                     placeholder="e.g. Safaricom Fiber"
                     value={form.providerName}
-                    onChange={(e) => setForm({ ...form, providerName: e.target.value })}
+                    onChange={(e) => setField("providerName", e.target.value)}
+                    aria-invalid={!!fieldErrors.providerName}
+                    aria-describedby={fieldErrors.providerName ? "provider-error" : undefined}
                   />
+                  {fieldErrors.providerName && (
+                    <p id="provider-error" role="alert" className="text-xs text-destructive">
+                      {fieldErrors.providerName}
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-2">
@@ -213,8 +271,15 @@ export function SpendTab() {
                       step="0.01"
                       placeholder="2999"
                       value={form.amountKes}
-                      onChange={(e) => setForm({ ...form, amountKes: e.target.value })}
+                      onChange={(e) => setField("amountKes", e.target.value)}
+                      aria-invalid={!!fieldErrors.amountKes}
+                      aria-describedby={fieldErrors.amountKes ? "amount-error" : undefined}
                     />
+                    {fieldErrors.amountKes && (
+                      <p id="amount-error" role="alert" className="text-xs text-destructive">
+                        {fieldErrors.amountKes}
+                      </p>
+                    )}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="dataGb">Data (GB)</Label>
@@ -225,8 +290,15 @@ export function SpendTab() {
                       step="0.1"
                       placeholder="420"
                       value={form.dataGb}
-                      onChange={(e) => setForm({ ...form, dataGb: e.target.value })}
+                      onChange={(e) => setField("dataGb", e.target.value)}
+                      aria-invalid={!!fieldErrors.dataGb}
+                      aria-describedby={fieldErrors.dataGb ? "dataGb-error" : undefined}
                     />
+                    {fieldErrors.dataGb && (
+                      <p id="dataGb-error" role="alert" className="text-xs text-destructive">
+                        {fieldErrors.dataGb}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -236,8 +308,15 @@ export function SpendTab() {
                       id="period"
                       placeholder={currentPeriod()}
                       value={form.periodMonth}
-                      onChange={(e) => setForm({ ...form, periodMonth: e.target.value })}
+                      onChange={(e) => setField("periodMonth", e.target.value)}
+                      aria-invalid={!!fieldErrors.periodMonth}
+                      aria-describedby={fieldErrors.periodMonth ? "period-error" : undefined}
                     />
+                    {fieldErrors.periodMonth && (
+                      <p id="period-error" role="alert" className="text-xs text-destructive">
+                        {fieldErrors.periodMonth}
+                      </p>
+                    )}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="plan">Plan (optional)</Label>
@@ -245,7 +324,7 @@ export function SpendTab() {
                       id="plan"
                       placeholder="Fiber 40 Mbps"
                       value={form.planName}
-                      onChange={(e) => setForm({ ...form, planName: e.target.value })}
+                      onChange={(e) => setField("planName", e.target.value)}
                     />
                   </div>
                 </div>
@@ -255,7 +334,7 @@ export function SpendTab() {
                     id="ref"
                     placeholder="M-Pesa code"
                     value={form.paymentRef}
-                    onChange={(e) => setForm({ ...form, paymentRef: e.target.value })}
+                    onChange={(e) => setField("paymentRef", e.target.value)}
                   />
                 </div>
                 {formError && (
