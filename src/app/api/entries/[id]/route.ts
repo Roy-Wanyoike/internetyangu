@@ -3,12 +3,14 @@ import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-// DELETE /api/entries?id=... — remove a billing entry
-export async function DELETE(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+// DELETE /api/entries/:id — remove a billing entry (path param, not query)
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   if (!id) {
-    return NextResponse.json({ error: "id query parameter is required" }, { status: 400 });
+    return NextResponse.json({ error: "id path parameter is required" }, { status: 400 });
   }
   const existing = await db.billingEntry.findUnique({ where: { id } });
   if (!existing) {

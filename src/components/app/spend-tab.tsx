@@ -221,7 +221,9 @@ export function SpendTab() {
 
   const remove = async (id: string) => {
     try {
-      const res = await fetch(`/api/entries?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      // path-param route: DELETE /api/entries/<id> (fixed in ISS-008 — the
+      // earlier ?id= form 405'd because the handler lives on the [id] segment)
+      const res = await fetch(`/api/entries/${encodeURIComponent(id)}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setEntries((prev) => prev?.filter((e) => e.id !== id) ?? null);
       toast({ title: "Entry removed" });
