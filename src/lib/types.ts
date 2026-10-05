@@ -62,3 +62,48 @@ export interface ParsedSms {
   kind?: "payment" | "receipt" | "bundle";
   raw: string;
 }
+
+// — Area intelligence (Find Internet) —
+
+export interface AreaSummaryDto {
+  slug: string;
+  name: string;
+  country: string;
+  level: string;
+  sampleCount: number;
+}
+
+export interface AreasListDto {
+  methodology: string;
+  dataWindowDays: number;
+  dataBasis: string;
+  areas: AreaSummaryDto[];
+}
+
+export interface AreaProviderIntel {
+  providerId: string;
+  name: string;
+  technology: string | null;
+  entryPriceKes: number | null;
+  avgSpeedMbps: number | null;
+  medianLatencyMs: number | null;
+  uptimePct: number | null;
+  sampleCount: number;
+  contributorProxyCount: number;
+  confidence: "high" | "medium" | "limited";
+  lastMeasuredAt: string | null;
+  score: number | null;
+}
+
+export interface AreaIntelligenceDto {
+  area: { slug: string; name: string; country: string; level: string };
+  dataBasis: string;
+  methodology: string;
+  dataWindow: { days: number; from: string; to: string };
+  insufficientData: boolean;
+  totalSamples: number;
+  minimumSamples: number;
+  providers: AreaProviderIntel[];
+  fallbackArea?: { slug: string; name: string; sampleCount: number } | null;
+  notice?: string;
+}
