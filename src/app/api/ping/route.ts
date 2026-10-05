@@ -104,10 +104,24 @@ export async function POST(req: Request) {
     );
   }
 
+  // 5) Pseudonymous contributor key (ISS-015 / Addendum §21): an optional,
+  //    strictly-shaped UUID from the device's localStorage. It is the ONLY
+  //    identity a measurement ever carries — no account, phone, email or IP —
+  //    and it exists so "Delete my data" can find and purge every row this
+  //    device contributed. Present-but-invalid is rejected, not sanitised.
+  const contributorKey = req.headers.get("x-contributor-key")?.trim() ?? "";
+  if (contributorKey && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(contributorKey)) {
+    return NextResponse.json(
+      { error: "Invalid X-Contributor-Key header — expected a UUID." },
+      { status: 400 },
+    );
+  }
+
   const sample = await db.pingSample.create({
     data: {
       rttMs: latencyMs,
       ok,
+      ...(contributorKey ? { contributorId: contributorKey } : {}),
       ...(body.providerId ? { providerId: body.providerId } : {}),
       ...(body.areaId ? { areaId: body.areaId } : {}),
       ...(body.connectionType ? { connectionType: body.connectionType } : {}),

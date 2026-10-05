@@ -24,8 +24,18 @@ const TABS = [
   { value: "outages", label: "Outages", icon: AlertTriangle },
 ];
 
+// Deep-link support (ISS-015): #dashboard/outages lands directly on the
+// evidence log — the Privacy Center's "Export my data" links here. Any other
+// hash (or the server render) falls back to the Overview tab. Only read once,
+// on mount; switching tabs afterwards is ordinary local state.
+function initialTabFromHash(): string {
+  if (typeof window === "undefined") return "overview";
+  const segment = window.location.hash.split("/")[1] ?? "";
+  return TABS.some((t) => t.value === segment) ? segment : "overview";
+}
+
 export function AppShell({ onExit }: { onExit: () => void }) {
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(initialTabFromHash);
   const online = useOnlineStatus();
   const { updateReady, applyUpdate } = useServiceWorker();
   const { showInstallCard, install, decline } = useInstallPrompt();

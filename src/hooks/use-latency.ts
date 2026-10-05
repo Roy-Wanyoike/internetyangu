@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PingSampleDto } from "@/lib/types";
 import { useConnectionType, type ConnectionInfo } from "@/hooks/use-connection-type";
+import { getContributorKey } from "@/lib/contributor";
 
 const INTERVAL_MS = 5000;
 const METERED_INTERVAL_MS = 60000;
@@ -66,7 +67,12 @@ export function useLatency(active: boolean): LatencyState {
       setSamples((prev) => [...prev.slice(-(WINDOW - 1)), sample]);
       void fetch("/api/ping", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // Pseudonymous key (ISS-015 / §21): lets "Delete my data" find every
+          // row this device created. No account, phone or IP is ever attached.
+          "X-Contributor-Key": getContributorKey(),
+        },
         body: JSON.stringify({ latencyMs: rttMs, ok: true }),
       }).catch(() => undefined);
     } catch {
@@ -76,7 +82,10 @@ export function useLatency(active: boolean): LatencyState {
       setSamples((prev) => [...prev.slice(-(WINDOW - 1)), sample]);
       void fetch("/api/ping", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Contributor-Key": getContributorKey(),
+        },
         body: JSON.stringify({ latencyMs: 0, ok: false }),
       }).catch(() => undefined);
     } finally {
