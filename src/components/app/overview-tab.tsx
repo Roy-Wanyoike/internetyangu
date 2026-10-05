@@ -13,6 +13,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ErrorState } from "./error-state";
+import { OfflineEmptyState, StaleDataNotice } from "@/components/pwa/offline-state";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { cacheFallbackAt } from "@/lib/pwa";
 import {
   LineChart,
   Line,
@@ -29,12 +32,20 @@ import type { Stats, OutageEvent } from "@/lib/types";
 
 export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
   const { samples, latest, failStreak } = useLatency(true);
+  const online = useOnlineStatus();
   const [stats, setStats] = useState<Stats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [statsRetrying, setStatsRetrying] = useState(false);
+  // Staleness bookkeeping (ISS-010 / §31): when the stats response came from
+  // the service-worker cache fallback (or the last refresh failed offline),
+  // the data on screen is explicitly labelled with when it was last updated.
+  const [statsAsOf, setStatsAsOf] = useState<string | null>(null);
+  const [statsStale, setStatsStale] = useState(false);
   const [outages, setOutages] = useState<OutageEvent[] | null>(null);
   const [outagesError, setOutagesError] = useState<string | null>(null);
   const [outagesRetrying, setOutagesRetrying] = useState(false);
+  const [outagesAsOf, setOutagesAsOf] = useState<string | null>(null);
+  const [outagesStale, setOutagesStale] = useState(false);
 
   const loadStats = useCallback(async () => {
     setStatsRetrying(true);
@@ -43,12 +54,18 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setStats((await res.json()) as Stats);
       setStatsError(null);
+      const cachedAt = cacheFallbackAt(res);
+      setStatsStale(cachedAt !== null);
+      setStatsAsOf(cachedAt ?? new Date().toISOString());
     } catch (e) {
       setStatsError(e instanceof Error ? e.message : "The stats request failed");
+      // Offline refresh failure: any data on screen is now known-stale. If we
+      // never loaded data, the error branch renders the offline empty-state.
+      if (!online) setStatsStale(true);
     } finally {
       setStatsRetrying(false);
     }
-  }, []);
+  }, [online]);
 
   const loadOutages = useCallback(async () => {
     setOutagesRetrying(true);
@@ -57,12 +74,16 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setOutages((await res.json()) as OutageEvent[]);
       setOutagesError(null);
+      const cachedAt = cacheFallbackAt(res);
+      setOutagesStale(cachedAt !== null);
+      setOutagesAsOf(cachedAt ?? new Date().toISOString());
     } catch (e) {
       setOutagesError(e instanceof Error ? e.message : "The outage log request failed");
+      if (!online) setOutagesStale(true);
     } finally {
       setOutagesRetrying(false);
     }
-  }, []);
+  }, [online]);
 
   useEffect(() => {
     void loadStats();
@@ -101,16 +122,30 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
 
   return (
     <div className="space-y-6">
-      {/* KPI row — error state replaces silent eternal loading (F-02) */}
+      {/* KPI row — error state replaces silent eternal loading (F-02);
+          offline + no data shows the explicit offline empty-state (§31) */}
       {statsError ? (
-        <ErrorState
-          title="Dashboard stats unavailable"
-          message={`The stats request failed (${statsError}).`}
-          onRetry={loadStats}
-          retrying={statsRetrying}
-        />
+        online ? (
+          <ErrorState
+            title="Dashboard stats unavailable"
+            message={`The stats request failed (${statsError}).`}
+            onRetry={loadStats}
+            retrying={statsRetrying}
+          />
+        ) : (
+          <OfflineEmptyState
+            title="Offline — dashboard stats unavailable"
+            onRetry={loadStats}
+            retrying={statsRetrying}
+          />
+        )
       ) : (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {statsStale && (
+          <div className="sm:col-span-2 xl:col-span-4">
+            <StaleDataNotice asOf={statsAsOf} offline={!online} />
+          </div>
+        )}
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-1.5">
@@ -321,13 +356,26 @@ export function OverviewTab({ onGoToSpend }: { onGoToSpend: () => void }) {
           </Button>
         </CardHeader>
         <CardContent>
+          {outagesStale && outages && (
+            <div className="mb-3">
+              <StaleDataNotice asOf={outagesAsOf} offline={!online} />
+            </div>
+          )}
           {outagesError ? (
-            <ErrorState
-              title="Outage log unavailable"
-              message={`The outage log request failed (${outagesError}).`}
-              onRetry={loadOutages}
-              retrying={outagesRetrying}
-            />
+            online ? (
+              <ErrorState
+                title="Outage log unavailable"
+                message={`The outage log request failed (${outagesError}).`}
+                onRetry={loadOutages}
+                retrying={outagesRetrying}
+              />
+            ) : (
+              <OfflineEmptyState
+                title="Offline — outage log unavailable"
+                onRetry={loadOutages}
+                retrying={outagesRetrying}
+              />
+            )
           ) : !outages ? (
             <div className="space-y-2">
               {Array.from({ length: 2 }).map((_, i) => (

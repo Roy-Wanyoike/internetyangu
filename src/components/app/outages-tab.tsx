@@ -33,6 +33,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, Download, Loader2, Plus, ShieldCheck } from "lucide-react";
 import { ErrorState } from "./error-state";
+import { OfflineEmptyState, StaleDataNotice } from "@/components/pwa/offline-state";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { cacheFallbackAt } from "@/lib/pwa";
 import { durationMin, relativeTime } from "@/lib/format";
 import type { OutageEvent, Provider } from "@/lib/types";
 
@@ -44,9 +47,13 @@ function localIso(d: Date): string {
 
 export function OutagesTab() {
   const { toast } = useToast();
+  const online = useOnlineStatus();
   const [outages, setOutages] = useState<OutageEvent[] | null>(null);
   const [outagesError, setOutagesError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+  // Staleness bookkeeping (ISS-010 / §31) — see overview-tab.
+  const [asOf, setAsOf] = useState<string | null>(null);
+  const [stale, setStale] = useState(false);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -62,12 +69,16 @@ export function OutagesTab() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setOutages((await res.json()) as OutageEvent[]);
       setOutagesError(null);
+      const cachedAt = cacheFallbackAt(res);
+      setStale(cachedAt !== null);
+      setAsOf(cachedAt ?? new Date().toISOString());
     } catch (e) {
       setOutagesError(e instanceof Error ? e.message : "The outage log request failed");
+      if (!online) setStale(true);
     } finally {
       setRetrying(false);
     }
-  }, []);
+  }, [online]);
 
   useEffect(() => {
     void load();
@@ -239,13 +250,26 @@ export function OutagesTab() {
           <CardDescription>Newest first · open outages are highlighted</CardDescription>
         </CardHeader>
         <CardContent>
+          {stale && outages && (
+            <div className="mb-3">
+              <StaleDataNotice asOf={asOf} offline={!online} />
+            </div>
+          )}
           {outagesError ? (
-            <ErrorState
-              title="Evidence log unavailable"
-              message={`The outage log request failed (${outagesError}).`}
-              onRetry={load}
-              retrying={retrying}
-            />
+            online ? (
+              <ErrorState
+                title="Evidence log unavailable"
+                message={`The outage log request failed (${outagesError}).`}
+                onRetry={load}
+                retrying={retrying}
+              />
+            ) : (
+              <OfflineEmptyState
+                title="Offline — evidence log unavailable"
+                onRetry={load}
+                retrying={retrying}
+              />
+            )
           ) : !outages ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (

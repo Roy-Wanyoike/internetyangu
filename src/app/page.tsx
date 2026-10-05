@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { useServiceWorker } from "@/hooks/use-service-worker";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { Hero } from "@/components/landing/hero";
 import { Pillars } from "@/components/landing/pillars";
@@ -36,6 +37,10 @@ function getServerView(): View {
 
 export default function Home() {
   const view = useSyncExternalStore(subscribeHash, getHashView, getServerView);
+  // PWA runtime (ISS-010): registers the service worker in production and
+  // drives the "Update available" flow. Tolerant of failure — no-ops in dev
+  // and on unsupported browsers.
+  useServiceWorker();
 
   const setHashView = useCallback((v: View) => {
     // replaceState does not fire hashchange — dispatch it manually

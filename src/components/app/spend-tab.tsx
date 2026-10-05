@@ -51,6 +51,9 @@ import {
   Info,
 } from "lucide-react";
 import { ErrorState } from "./error-state";
+import { OfflineEmptyState, StaleDataNotice } from "@/components/pwa/offline-state";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { cacheFallbackAt } from "@/lib/pwa";
 import { costPerGb, currentPeriod, formatGb, formatKes } from "@/lib/format";
 import { guessDataGb, guessProvider, parseBillingSms } from "@/lib/sms-parser";
 import type { BillingEntry } from "@/lib/types";
@@ -107,9 +110,13 @@ const EMPTY_FORM: AddFormState = {
 
 export function SpendTab() {
   const { toast } = useToast();
+  const online = useOnlineStatus();
   const [entries, setEntries] = useState<BillingEntry[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+  // Staleness bookkeeping (ISS-010 / §31) — see overview-tab.
+  const [entriesAsOf, setEntriesAsOf] = useState<string | null>(null);
+  const [entriesStale, setEntriesStale] = useState(false);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<AddFormState>(EMPTY_FORM);
@@ -126,12 +133,16 @@ export function SpendTab() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setEntries((await res.json()) as BillingEntry[]);
       setLoadError(null);
+      const cachedAt = cacheFallbackAt(res);
+      setEntriesStale(cachedAt !== null);
+      setEntriesAsOf(cachedAt ?? new Date().toISOString());
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "The billing history request failed");
+      if (!online) setEntriesStale(true);
     } finally {
       setRetrying(false);
     }
-  }, []);
+  }, [online]);
 
   useEffect(() => {
     void load();
@@ -459,13 +470,26 @@ export function SpendTab() {
           <CardDescription>Newest first · deletion asks for confirmation</CardDescription>
         </CardHeader>
         <CardContent>
+          {entriesStale && entries && (
+            <div className="mb-3">
+              <StaleDataNotice asOf={entriesAsOf} offline={!online} />
+            </div>
+          )}
           {loadError ? (
-            <ErrorState
-              title="Billing history unavailable"
-              message={`The billing history request failed (${loadError}).`}
-              onRetry={load}
-              retrying={retrying}
-            />
+            online ? (
+              <ErrorState
+                title="Billing history unavailable"
+                message={`The billing history request failed (${loadError}).`}
+                onRetry={load}
+                retrying={retrying}
+              />
+            ) : (
+              <OfflineEmptyState
+                title="Offline — billing history unavailable"
+                onRetry={load}
+                retrying={retrying}
+              />
+            )
           ) : !entries ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (

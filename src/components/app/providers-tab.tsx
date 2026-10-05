@@ -21,6 +21,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search, Star } from "lucide-react";
 import { ErrorState } from "./error-state";
+import { OfflineEmptyState, StaleDataNotice } from "@/components/pwa/offline-state";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { cacheFallbackAt } from "@/lib/pwa";
 import { formatKes } from "@/lib/format";
 import { costPerGb } from "@/lib/format";
 import type { Provider } from "@/lib/types";
@@ -28,9 +31,13 @@ import type { Provider } from "@/lib/types";
 const COUNTRIES = ["ALL", "KE", "TZ", "UG", "RW"] as const;
 
 export function ProvidersTab() {
+  const online = useOnlineStatus();
   const [providers, setProviders] = useState<Provider[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+  // Staleness bookkeeping (ISS-010 / §31) — see overview-tab.
+  const [providersAsOf, setProvidersAsOf] = useState<string | null>(null);
+  const [providersStale, setProvidersStale] = useState(false);
   const [query, setQuery] = useState("");
   const [country, setCountry] = useState<(typeof COUNTRIES)[number]>("ALL");
 
@@ -41,12 +48,16 @@ export function ProvidersTab() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setProviders((await res.json()) as Provider[]);
       setError(null);
+      const cachedAt = cacheFallbackAt(res);
+      setProvidersStale(cachedAt !== null);
+      setProvidersAsOf(cachedAt ?? new Date().toISOString());
     } catch (e) {
       setError(e instanceof Error ? e.message : "The provider directory request failed");
+      if (!online) setProvidersStale(true);
     } finally {
       setRetrying(false);
     }
-  }, []);
+  }, [online]);
 
   useEffect(() => {
     void load();
@@ -107,13 +118,26 @@ export function ProvidersTab() {
 
       <Card>
         <CardContent className="pt-6">
+          {providersStale && providers && (
+            <div className="mb-4">
+              <StaleDataNotice asOf={providersAsOf} offline={!online} />
+            </div>
+          )}
           {error ? (
-            <ErrorState
-              title="Provider directory unavailable"
-              message={`The directory request failed (${error}).`}
-              onRetry={load}
-              retrying={retrying}
-            />
+            online ? (
+              <ErrorState
+                title="Provider directory unavailable"
+                message={`The directory request failed (${error}).`}
+                onRetry={load}
+                retrying={retrying}
+              />
+            ) : (
+              <OfflineEmptyState
+                title="Offline — provider directory unavailable"
+                onRetry={load}
+                retrying={retrying}
+              />
+            )
           ) : !filtered ? (
             <div className="space-y-2">
               {Array.from({ length: 6 }).map((_, i) => (
