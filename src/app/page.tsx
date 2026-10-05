@@ -10,8 +10,9 @@ import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
 import { Footer } from "@/components/landing/footer";
 import { AppShell } from "@/components/app/app-shell";
+import { FindView } from "@/components/find/find-view";
 
-type View = "landing" | "app";
+type View = "landing" | "app" | "find";
 
 // The view is fully derived from the URL hash — SSR-safe via the server
 // snapshot, reactive via hashchange, and no effect-based setState anywhere.
@@ -21,7 +22,10 @@ function subscribeHash(callback: () => void) {
 }
 
 function getHashView(): View {
-  return window.location.hash === "#dashboard" ? "app" : "landing";
+  const hash = window.location.hash;
+  if (hash === "#dashboard") return "app";
+  if (hash === "#find") return "find";
+  return "landing";
 }
 
 function getServerView(): View {
@@ -33,7 +37,11 @@ export default function Home() {
 
   const setHashView = useCallback((v: View) => {
     // replaceState does not fire hashchange — dispatch it manually
-    window.history.replaceState(null, "", v === "app" ? "#dashboard" : "#top");
+    window.history.replaceState(
+      null,
+      "",
+      v === "app" ? "#dashboard" : v === "find" ? "#find" : "#top",
+    );
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, []);
@@ -51,6 +59,20 @@ export default function Home() {
           Skip to dashboard
         </a>
         <AppShell onExit={exit} />
+      </>
+    );
+  }
+
+  if (view === "find") {
+    return (
+      <>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+        >
+          Skip to results
+        </a>
+        <FindView onExit={exit} />
       </>
     );
   }
